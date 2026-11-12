@@ -10,6 +10,11 @@ import {
   Truck,
   Info,
   SlidersHorizontal,
+  Copy,
+  Check,
+  Send,
+  MessageCircle,
+  Zap,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { CustomerOrderDetails, PaymentMethodType } from '../types';
@@ -22,6 +27,7 @@ export const CheckoutPage: React.FC = () => {
     submitOrder,
     navigateTo,
     setIsSettingsOpen,
+    showToast,
   } = useStore();
 
   const [fullName, setFullName] = useState('');
@@ -31,11 +37,21 @@ export const CheckoutPage: React.FC = () => {
   const [cityArea, setCityArea] = useState('Khattak');
   const [orderNotes, setOrderNotes] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>('cash-on-delivery');
+  const [trxId, setTrxId] = useState('');
+  const [senderAccount, setSenderAccount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const deliveryFee = storeConfig.deliveryFeePlaceholder;
   const grandTotal = cartSubtotal + deliveryFee;
+
+  const copyToClipboard = (text: string, key: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    showToast(`Copied ${key} to clipboard!`);
+    setTimeout(() => setCopiedKey(null), 2500);
+  };
 
   if (cart.length === 0) {
     return (
@@ -65,7 +81,7 @@ export const CheckoutPage: React.FC = () => {
       return;
     }
     if (!phone.trim()) {
-      setFormError('Please provide a working phone number for delivery contact.');
+      setFormError('Please provide a working mobile phone number for delivery contact.');
       return;
     }
     if (!address.trim()) {
@@ -83,6 +99,8 @@ export const CheckoutPage: React.FC = () => {
       cityArea: cityArea.trim(),
       orderNotes: orderNotes.trim(),
       paymentMethod,
+      transactionReferenceId: trxId.trim() || undefined,
+      senderAccountDetails: senderAccount.trim() || undefined,
     };
 
     setTimeout(() => {
@@ -91,8 +109,37 @@ export const CheckoutPage: React.FC = () => {
     }, 400);
   };
 
+  // WhatsApp 1-tap direct mobile checkout
+  const handleWhatsAppOrder = () => {
+    if (!fullName.trim() || !phone.trim() || !address.trim()) {
+      setFormError('Please fill in your name, phone, and delivery address before ordering via WhatsApp.');
+      return;
+    }
+
+    const itemsSummary = cart
+      .map((item) => `• ${item.product.name} (${item.product.unit}) x ${item.quantity} = Rs. ${item.product.price * item.quantity}`)
+      .join('\n');
+
+    const msg = `*New Order for Sheeraz General Store (Khattak)*\n\n` +
+      `*Customer:* ${fullName}\n` +
+      `*Phone:* ${phone}\n` +
+      `*Address:* ${address}, ${cityArea} ${nearbyLandmark ? `(Near ${nearbyLandmark})` : ''}\n` +
+      `*Payment Method:* ${paymentMethod.toUpperCase()}\n` +
+      (trxId ? `*Transaction/TRX ID:* ${trxId}\n` : '') +
+      (orderNotes ? `*Notes:* ${orderNotes}\n` : '') +
+      `\n*Items:*\n${itemsSummary}\n\n` +
+      `*Items Subtotal:* Rs. ${cartSubtotal}\n` +
+      `*Estimated Delivery:* Rs. ${deliveryFee}\n` +
+      `*Total Amount:* Rs. ${grandTotal}\n\n` +
+      `Please confirm and dispatch our order. Thank you!`;
+
+    const encoded = encodeURIComponent(msg);
+    // WhatsApp URL
+    window.open(`https://wa.me/?text=${encoded}`, '_blank');
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-xs text-stone-600 font-medium">
         <button
@@ -107,11 +154,11 @@ export const CheckoutPage: React.FC = () => {
       </div>
 
       <div>
-        <h1 className="text-3xl font-extrabold font-serif text-stone-900">
+        <h1 className="text-2xl sm:text-3xl font-extrabold font-serif text-stone-900">
           Complete Your Order
         </h1>
         <p className="text-xs sm:text-sm text-stone-700 mt-1">
-          Provide your local delivery details in Khattak. No online credit card charge required.
+          Provide your local delivery details in Khattak. Choose your preferred transfer or cash payment option.
         </p>
       </div>
 
@@ -122,16 +169,16 @@ export const CheckoutPage: React.FC = () => {
         </div>
       )}
 
-      <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
         {/* Left Column: Customer and Delivery Details */}
         <div className="lg:col-span-7 space-y-6">
           {/* Step 1: Customer Contact & Delivery Info */}
-          <div className="bg-white rounded-3xl border border-stone-200 p-6 sm:p-8 shadow-xs space-y-5">
+          <div className="bg-white rounded-2xl sm:rounded-3xl border border-stone-200 p-5 sm:p-8 shadow-xs space-y-4 sm:space-y-5">
             <div className="flex items-center gap-2.5 border-b border-stone-100 pb-3">
               <span className="w-7 h-7 rounded-full bg-emerald-800 text-amber-300 text-xs font-bold flex items-center justify-center">
                 1
               </span>
-              <h2 className="text-lg font-bold font-serif text-stone-900">
+              <h2 className="text-base sm:text-lg font-bold font-serif text-stone-900">
                 Customer & Delivery Information
               </h2>
             </div>
@@ -147,7 +194,7 @@ export const CheckoutPage: React.FC = () => {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="e.g. Asad Khattak"
-                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-hidden"
+                  className="w-full px-3.5 py-3 bg-stone-50 border border-stone-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-hidden"
                 />
               </div>
 
@@ -157,11 +204,12 @@ export const CheckoutPage: React.FC = () => {
                 </label>
                 <input
                   type="tel"
+                  inputMode="tel"
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="03XX-XXXXXXX"
-                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-hidden font-mono"
+                  className="w-full px-3.5 py-3 bg-stone-50 border border-stone-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-hidden font-mono"
                 />
               </div>
             </div>
@@ -177,7 +225,7 @@ export const CheckoutPage: React.FC = () => {
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   placeholder="House number, Street, Mohallah / Colony"
-                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-hidden"
+                  className="w-full px-3.5 py-3 bg-stone-50 border border-stone-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-hidden"
                 />
               </div>
 
@@ -189,7 +237,7 @@ export const CheckoutPage: React.FC = () => {
                   type="text"
                   value={cityArea}
                   onChange={(e) => setCityArea(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-stone-100 border border-stone-300 rounded-xl text-sm font-semibold text-stone-800 focus:outline-hidden"
+                  className="w-full px-3.5 py-3 bg-stone-100 border border-stone-300 rounded-xl text-sm font-semibold text-stone-800 focus:outline-hidden"
                 />
               </div>
             </div>
@@ -203,7 +251,7 @@ export const CheckoutPage: React.FC = () => {
                 value={nearbyLandmark}
                 onChange={(e) => setNearbyLandmark(e.target.value)}
                 placeholder="e.g. Near Jamia Masjid, Girls High School, or Main Chowk"
-                className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-hidden"
+                className="w-full px-3.5 py-3 bg-stone-50 border border-stone-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-hidden"
               />
             </div>
 
@@ -221,15 +269,25 @@ export const CheckoutPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Step 2: Payment Choices */}
-          <div className="bg-white rounded-3xl border border-stone-200 p-6 sm:p-8 shadow-xs space-y-5">
-            <div className="flex items-center gap-2.5 border-b border-stone-100 pb-3">
-              <span className="w-7 h-7 rounded-full bg-emerald-800 text-amber-300 text-xs font-bold flex items-center justify-center">
-                2
-              </span>
-              <h2 className="text-lg font-bold font-serif text-stone-900">
-                Payment Method
-              </h2>
+          {/* Step 2: Payment Choices & Transfer Options */}
+          <div className="bg-white rounded-2xl sm:rounded-3xl border border-stone-200 p-5 sm:p-8 shadow-xs space-y-5">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <span className="w-7 h-7 rounded-full bg-emerald-800 text-amber-300 text-xs font-bold flex items-center justify-center">
+                  2
+                </span>
+                <h2 className="text-base sm:text-lg font-bold font-serif text-stone-900">
+                  Payment & Transfer Options
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsSettingsOpen(true)}
+                className="text-[11px] text-amber-800 font-semibold flex items-center gap-1 hover:underline cursor-pointer"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                <span>Customize Accounts</span>
+              </button>
             </div>
 
             <div className="space-y-3">
@@ -256,16 +314,16 @@ export const CheckoutPage: React.FC = () => {
                       Cash on Delivery (COD)
                     </span>
                     <span className="text-[10px] bg-emerald-100 text-emerald-900 font-bold px-2 py-0.5 rounded-full">
-                      Recommended
+                      Most Popular
                     </span>
                   </div>
                   <p className="text-xs text-stone-700 mt-1">
-                    Pay in cash when our delivery rider brings your order to your door in Khattak, or pay at the shop counter upon pickup.
+                    Pay in cash when our delivery rider brings your order to your home in Khattak, or pay at the shop counter upon pickup.
                   </p>
                 </div>
               </label>
 
-              {/* Option 2: Easypaisa */}
+              {/* Option 2: Easypaisa Mobile Transfer */}
               <label
                 className={`p-4 rounded-2xl border-2 transition-all flex flex-col gap-3 cursor-pointer ${
                   paymentMethod === 'easypaisa'
@@ -290,38 +348,179 @@ export const CheckoutPage: React.FC = () => {
                       </span>
                     </div>
                     <p className="text-xs text-stone-700 mt-1">
-                      Direct wallet-to-wallet transfer via Easypaisa App or mobile USSD.
+                      Direct wallet-to-wallet transfer via Easypaisa App or Telenor mobile code.
                     </p>
                   </div>
                 </div>
 
-                {/* Easypaisa details and instructions */}
                 {paymentMethod === 'easypaisa' && (
-                  <div className="ml-8 p-3.5 bg-white rounded-xl border border-emerald-300 text-xs space-y-2">
+                  <div className="ml-0 sm:ml-8 p-3.5 bg-white rounded-xl border border-emerald-300 text-xs space-y-3">
                     <div className="flex justify-between items-center text-stone-700">
                       <span className="font-semibold">Store Easypaisa Account:</span>
                       <button
                         type="button"
-                        onClick={() => setIsSettingsOpen(true)}
-                        className="text-[10px] text-amber-700 underline font-semibold cursor-pointer"
+                        onClick={() => copyToClipboard(storeConfig.easypaisaAccountPlaceholder, 'Easypaisa Account')}
+                        className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-[11px] font-bold rounded-lg border border-emerald-200 flex items-center gap-1 cursor-pointer"
                       >
-                        Edit in Settings
+                        {copiedKey === 'Easypaisa Account' ? <Check className="w-3 h-3 text-emerald-700" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedKey === 'Easypaisa Account' ? 'Copied!' : 'Copy Number'}</span>
                       </button>
                     </div>
-                    <div className="p-2 bg-stone-50 rounded-lg font-mono text-emerald-950 font-bold text-sm border border-stone-200">
+
+                    <div className="p-2.5 bg-stone-50 rounded-lg font-mono text-emerald-950 font-bold text-sm border border-stone-200">
                       {storeConfig.easypaisaAccountPlaceholder}
                     </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 mb-1">
+                        Your Easypaisa Transaction ID / Sender Name (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={trxId}
+                        onChange={(e) => setTrxId(e.target.value)}
+                        placeholder="e.g. TRX-938201 or Tariq Khan"
+                        className="w-full p-2 bg-stone-50 border border-stone-300 rounded-lg text-xs"
+                      />
+                    </div>
+
                     <div className="text-[11px] text-stone-700 space-y-1">
                       <p><strong>Instructions:</strong> {storeConfig.easypaisaInstructions}</p>
                       <p className="text-amber-800 font-medium">
-                        ⚠️ Important: Order is not confirmed as paid until store staff verifies payment receipt.
+                        ⚠️ Payment will be verified by Fahad Islam or Sadam Hussain before order is dispatched.
                       </p>
                     </div>
                   </div>
                 )}
               </label>
 
-              {/* Option 3: Bank Transfer */}
+              {/* Option 3: JazzCash Mobile Transfer */}
+              <label
+                className={`p-4 rounded-2xl border-2 transition-all flex flex-col gap-3 cursor-pointer ${
+                  paymentMethod === 'jazzcash'
+                    ? 'border-emerald-700 bg-emerald-50/50'
+                    : 'border-stone-200 hover:border-stone-300 bg-white'
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="jazzcash"
+                    checked={paymentMethod === 'jazzcash'}
+                    onChange={() => setPaymentMethod('jazzcash')}
+                    className="mt-1 text-emerald-800 focus:ring-emerald-600"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <Smartphone className="w-5 h-5 text-amber-700" />
+                      <span className="font-bold text-stone-900 text-sm">
+                        JazzCash Mobile Wallet
+                      </span>
+                    </div>
+                    <p className="text-xs text-stone-700 mt-1">
+                      Send payment directly to our JazzCash account via app or *786# mobile code.
+                    </p>
+                  </div>
+                </div>
+
+                {paymentMethod === 'jazzcash' && (
+                  <div className="ml-0 sm:ml-8 p-3.5 bg-white rounded-xl border border-amber-300 text-xs space-y-3">
+                    <div className="flex justify-between items-center text-stone-700">
+                      <span className="font-semibold">Store JazzCash Account:</span>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(storeConfig.jazzcashAccountPlaceholder, 'JazzCash Account')}
+                        className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-950 text-[11px] font-bold rounded-lg border border-amber-200 flex items-center gap-1 cursor-pointer"
+                      >
+                        {copiedKey === 'JazzCash Account' ? <Check className="w-3 h-3 text-emerald-700" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedKey === 'JazzCash Account' ? 'Copied!' : 'Copy Number'}</span>
+                      </button>
+                    </div>
+
+                    <div className="p-2.5 bg-stone-50 rounded-lg font-mono text-stone-900 font-bold text-sm border border-stone-200">
+                      {storeConfig.jazzcashAccountPlaceholder}
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 mb-1">
+                        Your JazzCash Transaction ID (TID) (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={trxId}
+                        onChange={(e) => setTrxId(e.target.value)}
+                        placeholder="e.g. TID-10928374 or Sender Number"
+                        className="w-full p-2 bg-stone-50 border border-stone-300 rounded-lg text-xs"
+                      />
+                    </div>
+
+                    <div className="text-[11px] text-stone-700 space-y-1">
+                      <p><strong>Instructions:</strong> {storeConfig.jazzcashInstructions}</p>
+                    </div>
+                  </div>
+                )}
+              </label>
+
+              {/* Option 4: Raast SBP Instant Transfer */}
+              <label
+                className={`p-4 rounded-2xl border-2 transition-all flex flex-col gap-3 cursor-pointer ${
+                  paymentMethod === 'raast'
+                    ? 'border-emerald-700 bg-emerald-50/50'
+                    : 'border-stone-200 hover:border-stone-300 bg-white'
+                }`}
+              >
+                <div className="flex items-start gap-4">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="raast"
+                    checked={paymentMethod === 'raast'}
+                    onChange={() => setPaymentMethod('raast')}
+                    className="mt-1 text-emerald-800 focus:ring-emerald-600"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-5 h-5 text-emerald-700" />
+                      <span className="font-bold text-stone-900 text-sm">
+                        Raast Instant P2P Payment (State Bank of Pakistan)
+                      </span>
+                      <span className="text-[10px] bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded-full">
+                        0% Fee
+                      </span>
+                    </div>
+                    <p className="text-xs text-stone-700 mt-1">
+                      Zero-fee instant transfer from any Pakistani bank app using our registered Raast ID.
+                    </p>
+                  </div>
+                </div>
+
+                {paymentMethod === 'raast' && (
+                  <div className="ml-0 sm:ml-8 p-3.5 bg-white rounded-xl border border-emerald-300 text-xs space-y-3">
+                    <div className="flex justify-between items-center text-stone-700">
+                      <span className="font-semibold">Registered Raast ID:</span>
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(storeConfig.raastIdPlaceholder, 'Raast ID')}
+                        className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-[11px] font-bold rounded-lg border border-emerald-200 flex items-center gap-1 cursor-pointer"
+                      >
+                        {copiedKey === 'Raast ID' ? <Check className="w-3 h-3 text-emerald-700" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedKey === 'Raast ID' ? 'Copied!' : 'Copy Raast ID'}</span>
+                      </button>
+                    </div>
+
+                    <div className="p-2.5 bg-stone-50 rounded-lg font-mono text-emerald-950 font-bold text-sm border border-stone-200">
+                      {storeConfig.raastIdPlaceholder}
+                    </div>
+
+                    <div className="text-[11px] text-stone-700 space-y-1">
+                      <p><strong>Instructions:</strong> {storeConfig.raastInstructions}</p>
+                    </div>
+                  </div>
+                )}
+              </label>
+
+              {/* Option 5: Direct Bank Transfer (IBFT) */}
               <label
                 className={`p-4 rounded-2xl border-2 transition-all flex flex-col gap-3 cursor-pointer ${
                   paymentMethod === 'bank-transfer'
@@ -342,38 +541,37 @@ export const CheckoutPage: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <CreditCard className="w-5 h-5 text-emerald-800" />
                       <span className="font-bold text-stone-900 text-sm">
-                        Direct Bank Transfer (Online / IBFT)
+                        Direct Bank Transfer (HBL / Meezan / IBFT)
                       </span>
                     </div>
                     <p className="text-xs text-stone-700 mt-1">
-                      Transfer from HBL, Meezan, UBL, or any Pakistani bank via IBFT.
+                      Transfer from any Pakistani bank account via 24-digit IBAN.
                     </p>
                   </div>
                 </div>
 
-                {/* Bank details and instructions */}
                 {paymentMethod === 'bank-transfer' && (
-                  <div className="ml-8 p-3.5 bg-white rounded-xl border border-emerald-300 text-xs space-y-2">
+                  <div className="ml-0 sm:ml-8 p-3.5 bg-white rounded-xl border border-emerald-300 text-xs space-y-3">
                     <div className="flex justify-between items-center text-stone-700">
                       <span className="font-semibold">Store Bank Account Details:</span>
                       <button
                         type="button"
-                        onClick={() => setIsSettingsOpen(true)}
-                        className="text-[10px] text-amber-700 underline font-semibold cursor-pointer"
+                        onClick={() => copyToClipboard(storeConfig.bankIbanPlaceholder, 'IBAN')}
+                        className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-[11px] font-bold rounded-lg border border-emerald-200 flex items-center gap-1 cursor-pointer"
                       >
-                        Edit in Settings
+                        {copiedKey === 'IBAN' ? <Check className="w-3 h-3 text-emerald-700" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedKey === 'IBAN' ? 'Copied!' : 'Copy IBAN'}</span>
                       </button>
                     </div>
-                    <div className="p-2.5 bg-stone-50 rounded-lg space-y-1 text-stone-900 border border-stone-200">
+
+                    <div className="p-3 bg-stone-50 rounded-lg space-y-1 text-stone-900 border border-stone-200">
                       <div><strong>Bank:</strong> {storeConfig.bankNamePlaceholder}</div>
-                      <div><strong>Title:</strong> {storeConfig.bankAccountTitlePlaceholder}</div>
+                      <div><strong>Account Title:</strong> {storeConfig.bankAccountTitlePlaceholder}</div>
                       <div className="font-mono text-xs"><strong>IBAN:</strong> {storeConfig.bankIbanPlaceholder}</div>
                     </div>
+
                     <div className="text-[11px] text-stone-700 space-y-1">
                       <p><strong>Instructions:</strong> {storeConfig.bankInstructions}</p>
-                      <p className="text-amber-800 font-medium">
-                        ⚠️ Note: Transfer verification will be performed by the store prior to dispatch.
-                      </p>
                     </div>
                   </div>
                 )}
@@ -382,10 +580,10 @@ export const CheckoutPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column: Order Summary & Place Order */}
+        {/* Right Column: Order Summary & Actions */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white rounded-3xl border border-stone-200 p-6 sm:p-8 shadow-xs space-y-5 sticky top-28">
-            <h3 className="text-lg font-bold font-serif text-stone-900 border-b border-stone-100 pb-3">
+          <div className="bg-white rounded-2xl sm:rounded-3xl border border-stone-200 p-5 sm:p-8 shadow-xs space-y-5 sticky top-28">
+            <h3 className="text-base sm:text-lg font-bold font-serif text-stone-900 border-b border-stone-100 pb-3">
               Order Items ({cart.length})
             </h3>
 
@@ -424,31 +622,43 @@ export const CheckoutPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Trust disclaimer */}
+            {/* Trust notice */}
             <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 text-[11px] text-stone-600 space-y-1">
               <div className="flex items-center gap-1 font-semibold text-stone-800">
                 <ShieldCheck className="w-4 h-4 text-emerald-700" />
                 <span>Verification & Fulfillment Notice</span>
               </div>
               <p>
-                By clicking "Place Order", your request will be recorded at Sheeraz General Store. We do not process automatic unverified payments.
+                All orders are personally inspected and packed by Fahad Islam and Sadam Hussain.
               </p>
             </div>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-3.5 px-4 bg-emerald-800 hover:bg-emerald-900 disabled:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
-            >
-              {isSubmitting ? (
-                <span>Recording Order...</span>
-              ) : (
-                <>
-                  <span>Place Order (Rs. {grandTotal})</span>
-                  <ArrowRight className="w-4 h-4 text-amber-300" />
-                </>
-              )}
-            </button>
+            {/* Order Action Buttons */}
+            <div className="space-y-2.5">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3.5 px-4 bg-emerald-800 hover:bg-emerald-900 disabled:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {isSubmitting ? (
+                  <span>Recording Order...</span>
+                ) : (
+                  <>
+                    <span>Place Store Order (Rs. {grandTotal})</span>
+                    <ArrowRight className="w-4 h-4 text-amber-300" />
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleWhatsAppOrder}
+                className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs sm:text-sm shadow-sm transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <MessageCircle className="w-4 h-4 text-white" />
+                <span>1-Tap Order via WhatsApp</span>
+              </button>
+            </div>
           </div>
         </div>
       </form>

@@ -15,6 +15,7 @@ import { CartPage } from './pages/CartPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { OrderConfirmationPage } from './pages/OrderConfirmationPage';
 import { LegalPage } from './pages/LegalPage';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import { CheckCircle2 } from 'lucide-react';
 
 const AppContent: React.FC = () => {
@@ -48,12 +49,12 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#faf8f5] text-stone-900 selection:bg-emerald-200 selection:text-emerald-950">
+    <div className="min-h-screen flex flex-col bg-[#faf8f5] text-stone-900 selection:bg-emerald-200 selection:text-emerald-950 pb-16 md:pb-0">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-stone-900 text-white px-4 py-3 rounded-2xl shadow-2xl border border-stone-700 flex items-center gap-2.5 text-xs font-semibold animate-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-50 bg-stone-900 text-white px-4 py-3 rounded-2xl shadow-2xl border border-stone-700 flex items-center gap-2.5 text-xs font-semibold animate-in slide-in-from-bottom-3 duration-200 max-w-[90vw]">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>{toastMessage}</span>
+          <span className="truncate">{toastMessage}</span>
         </div>
       )}
 
@@ -67,6 +68,9 @@ const AppContent: React.FC = () => {
       <CartDrawer />
       <ProductQuickViewModal />
       <StoreSettingsModal />
+
+      {/* Mobile Sticky Bottom Navigation */}
+      <MobileBottomNav />
 
       {/* Site Footer */}
       <Footer />

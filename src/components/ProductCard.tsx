@@ -38,8 +38,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           )}
         </div>
 
-        {/* Quick View Button overlay */}
-        <div className="absolute inset-0 bg-emerald-950/20 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-4">
+        {/* Quick View Button overlay for desktop, and persistent mobile tap trigger */}
+        <div className="absolute inset-0 bg-emerald-950/20 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity hidden md:flex items-center justify-center gap-2 p-4">
           <button
             onClick={() => setQuickViewProduct(product)}
             className="px-3.5 py-2 bg-white text-emerald-950 text-xs font-semibold rounded-xl shadow-lg hover:bg-emerald-50 transition transform translate-y-2 group-hover:translate-y-0 duration-200 flex items-center gap-1.5 cursor-pointer"
@@ -49,9 +49,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </button>
         </div>
 
+        {/* Mobile Quick View Floating Trigger */}
+        <button
+          onClick={() => setQuickViewProduct(product)}
+          className="md:hidden absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-md shadow-md text-stone-700 flex items-center justify-center cursor-pointer active:scale-95 transition"
+          aria-label="Quick view product details"
+        >
+          <Eye className="w-3.5 h-3.5 text-emerald-800" />
+        </button>
+
         {/* Stock tag */}
         <div className="absolute bottom-2.5 right-2.5 z-10">
-          <span className="bg-emerald-900/80 backdrop-blur-xs text-emerald-100 text-[10px] font-medium px-2 py-0.5 rounded-md flex items-center gap-1">
+          <span className="bg-emerald-900/85 backdrop-blur-xs text-emerald-100 text-[10px] font-medium px-2 py-0.5 rounded-md flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             In Stock
           </span>

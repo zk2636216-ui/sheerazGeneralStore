@@ -36,7 +36,12 @@ export interface CartItem {
   quantity: number;
 }
 
-export type PaymentMethodType = 'cash-on-delivery' | 'easypaisa' | 'bank-transfer';
+export type PaymentMethodType =
+  | 'cash-on-delivery'
+  | 'easypaisa'
+  | 'jazzcash'
+  | 'raast'
+  | 'bank-transfer';
 
 export interface CustomerOrderDetails {
   fullName: string;
@@ -46,6 +51,8 @@ export interface CustomerOrderDetails {
   cityArea: string;
   orderNotes?: string;
   paymentMethod: PaymentMethodType;
+  transactionReferenceId?: string;
+  senderAccountDetails?: string;
 }
 
 export interface PlacedOrder {
@@ -70,6 +77,7 @@ export interface StoreConfig {
   };
   announcementText: string;
   phonePlaceholder: string;
+  whatsappNumberPlaceholder: string;
   emailPlaceholder: string;
   addressPlaceholder: string;
   openingHoursPlaceholder: string;
@@ -78,6 +86,12 @@ export interface StoreConfig {
   easypaisaTitle: string;
   easypaisaAccountPlaceholder: string;
   easypaisaInstructions: string;
+  jazzcashTitle: string;
+  jazzcashAccountPlaceholder: string;
+  jazzcashInstructions: string;
+  raastTitle: string;
+  raastIdPlaceholder: string;
+  raastInstructions: string;
   bankNamePlaceholder: string;
   bankAccountTitlePlaceholder: string;
   bankIbanPlaceholder: string;

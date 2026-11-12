@@ -181,6 +181,18 @@ export const StoreSettingsModal: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-bold text-stone-700 mb-1">
+                  Store WhatsApp Number (For 1-Tap Orders)
+                </label>
+                <input
+                  type="text"
+                  value={formData.whatsappNumberPlaceholder}
+                  onChange={(e) => handleChange('whatsappNumberPlaceholder', e.target.value)}
+                  className="w-full p-2.5 text-xs border border-stone-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-hidden"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 mb-1">
                   Opening Hours
                 </label>
                 <input
@@ -208,16 +220,17 @@ export const StoreSettingsModal: React.FC = () => {
           {activeTab === 'payment' && (
             <div className="space-y-4">
               <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900">
-                Keep payment details placeholder friendly. Real store credentials are not fabricated; store owners can insert their real details here when ready.
+                Configure local transfer options for Khattak customers. Real store credentials can be updated live.
               </div>
 
+              {/* Easypaisa */}
               <div className="space-y-2 border-b border-stone-200 pb-4">
                 <h4 className="text-xs font-bold uppercase text-emerald-900 tracking-wider">
                   Easypaisa Configuration
                 </h4>
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    Easypaisa Mobile Account Number
+                    Easypaisa Account Number
                   </label>
                   <input
                     type="text"
@@ -230,13 +243,79 @@ export const StoreSettingsModal: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    Easypaisa Transfer Instructions
+                    Easypaisa Instructions
                   </label>
                   <textarea
                     rows={2}
                     value={formData.easypaisaInstructions}
                     onChange={(e) =>
                       handleChange('easypaisaInstructions', e.target.value)
+                    }
+                    className="w-full p-2.5 text-xs border border-stone-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-hidden"
+                  />
+                </div>
+              </div>
+
+              {/* JazzCash */}
+              <div className="space-y-2 border-b border-stone-200 pb-4">
+                <h4 className="text-xs font-bold uppercase text-amber-800 tracking-wider">
+                  JazzCash Configuration
+                </h4>
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1">
+                    JazzCash Account Number
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.jazzcashAccountPlaceholder}
+                    onChange={(e) =>
+                      handleChange('jazzcashAccountPlaceholder', e.target.value)
+                    }
+                    className="w-full p-2.5 text-xs border border-stone-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1">
+                    JazzCash Instructions
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={formData.jazzcashInstructions}
+                    onChange={(e) =>
+                      handleChange('jazzcashInstructions', e.target.value)
+                    }
+                    className="w-full p-2.5 text-xs border border-stone-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-hidden"
+                  />
+                </div>
+              </div>
+
+              {/* Raast */}
+              <div className="space-y-2 border-b border-stone-200 pb-4">
+                <h4 className="text-xs font-bold uppercase text-emerald-900 tracking-wider">
+                  Raast Instant P2P Configuration (Zero Fee)
+                </h4>
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1">
+                    Registered Raast ID (Phone or IBAN)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.raastIdPlaceholder}
+                    onChange={(e) =>
+                      handleChange('raastIdPlaceholder', e.target.value)
+                    }
+                    className="w-full p-2.5 text-xs border border-stone-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1">
+                    Raast Instructions
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={formData.raastInstructions}
+                    onChange={(e) =>
+                      handleChange('raastInstructions', e.target.value)
                     }
                     className="w-full p-2.5 text-xs border border-stone-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:outline-hidden"
                   />

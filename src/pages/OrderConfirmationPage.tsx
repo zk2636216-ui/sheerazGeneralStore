@@ -74,6 +74,10 @@ export const OrderConfirmationPage: React.FC = () => {
                 ') when our delivery rider arrives or when you collect your parcel from the store.'}
             {currentOrder.paymentMethod === 'easypaisa' &&
               `Please send Rs. ${currentOrder.total} to our Easypaisa account: ${storeConfig.easypaisaAccountPlaceholder}. An order is confirmed as paid once verified by Fahad Islam or Sadam Hussain.`}
+            {currentOrder.paymentMethod === 'jazzcash' &&
+              `Please send Rs. ${currentOrder.total} to our JazzCash account: ${storeConfig.jazzcashAccountPlaceholder}. Store staff will verify and dispatch.`}
+            {currentOrder.paymentMethod === 'raast' &&
+              `Please send Rs. ${currentOrder.total} via Raast (0% fee) to registered Raast ID: ${storeConfig.raastIdPlaceholder}.`}
             {currentOrder.paymentMethod === 'bank-transfer' &&
               `Please transfer Rs. ${currentOrder.total} to ${storeConfig.bankNamePlaceholder} (IBAN: ${storeConfig.bankIbanPlaceholder}). Kindly share the transaction reference with the store.`}
           </p>

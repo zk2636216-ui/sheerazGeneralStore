@@ -10,6 +10,8 @@ import {
   Truck,
   Heart,
   SlidersHorizontal,
+  Code2,
+  Sparkles,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { ProductCategory } from '../types';
@@ -18,7 +20,7 @@ export const Footer: React.FC = () => {
   const { storeConfig, navigateTo, categories, setIsSettingsOpen } = useStore();
 
   return (
-    <footer className="bg-emerald-950 text-stone-200 mt-20 border-t border-emerald-900/60">
+    <footer className="bg-emerald-950 text-stone-200 mt-16 sm:mt-24 border-t border-emerald-900/60 pb-16 md:pb-0">
       {/* Trust badges strip */}
       <div className="border-b border-emerald-900/60 bg-emerald-900/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -97,10 +99,10 @@ export const Footer: React.FC = () => {
 
             <div className="bg-emerald-900/50 rounded-2xl p-4 border border-emerald-800/60 max-w-sm">
               <div className="text-xs font-semibold text-amber-300 uppercase tracking-wider mb-2">
-                Store Ownership
+                Store Ownership & Management
               </div>
               <p className="text-sm text-white font-medium">
-                Owned and operated by <span className="font-semibold text-emerald-300">{storeConfig.owners.name1}</span> and <span className="font-semibold text-emerald-300">{storeConfig.owners.name2}</span>.
+                Owned and operated by <span className="font-bold text-amber-300">{storeConfig.owners.name1}</span> (Lead Manager) and <span className="font-bold text-emerald-300">{storeConfig.owners.name2}</span>.
               </p>
               <p className="text-xs text-stone-300 mt-1">
                 Rooted in Khattak, dedicated to honest weights, fair prices, and warm community hospitality.
@@ -212,17 +214,49 @@ export const Footer: React.FC = () => {
           </div>
         </div>
 
+        {/* PROMINENT DEVELOPER CREDIT BANNER FOR ZAKRIYA KHAN */}
+        <div className="mt-12 pt-8 border-t border-emerald-900/60">
+          <div className="bg-linear-to-r from-stone-900 via-emerald-900 to-stone-900 p-5 rounded-2xl border border-emerald-700/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left shadow-lg">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-amber-400 text-emerald-950 flex items-center justify-center shrink-0 font-extrabold font-serif text-lg shadow-md">
+                ZK
+              </div>
+              <div>
+                <div className="flex items-center gap-2 justify-center sm:justify-start">
+                  <span className="text-xs font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1">
+                    <Code2 className="w-3.5 h-3.5" />
+                    Website Developer & Engineer
+                  </span>
+                </div>
+                <h4 className="text-white font-bold text-sm sm:text-base font-serif">
+                  Crafted by <span className="text-amber-400 underline decoration-amber-400/40">Zakriya Khan</span> — Full Stack Engineer
+                </h4>
+                <p className="text-[11px] text-stone-300">
+                  Custom engineered for Sheeraz General Store • Modern React 19, TypeScript & Tailwind CSS • GitHub Pages Ready
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-800/80 text-emerald-200 text-xs font-medium border border-emerald-600">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Production Grade</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Payment Methods and Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-emerald-900/60 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-stone-400">
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="mt-8 pt-6 border-t border-emerald-900/60 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-stone-400">
+          <div className="flex flex-wrap items-center gap-2.5">
             <span className="font-medium text-stone-300">Accepted Payment Methods:</span>
-            <span className="bg-emerald-900 px-2.5 py-1 rounded-md text-emerald-200 border border-emerald-800">
+            <span className="bg-emerald-900 px-2 py-0.5 rounded-md text-emerald-200 border border-emerald-800">
               Cash on Delivery (COD)
             </span>
-            <span className="bg-emerald-900 px-2.5 py-1 rounded-md text-emerald-200 border border-emerald-800">
+            <span className="bg-emerald-900 px-2 py-0.5 rounded-md text-emerald-200 border border-emerald-800">
               Easypaisa Mobile Wallet
             </span>
-            <span className="bg-emerald-900 px-2.5 py-1 rounded-md text-emerald-200 border border-emerald-800">
+            <span className="bg-emerald-900 px-2 py-0.5 rounded-md text-emerald-200 border border-emerald-800">
               Direct Bank Transfer
             </span>
           </div>
@@ -246,8 +280,8 @@ export const Footer: React.FC = () => {
 
         <div className="mt-6 text-center text-xs text-stone-300">
           <p>
-            © {new Date().getFullYear()} Sheeraz General Store. All rights reserved. Located in Khattak.
-            Sample products and prices are provided for preview and may be customized by store management.
+            © {new Date().getFullYear()} Sheeraz General Store. All rights reserved. Located in Khattak, KP.
+            Proudly owned by Fahad Islam & Sadam Hussain. Website created by Zakriya Khan, Full Stack Engineer.
           </p>
         </div>
       </div>
