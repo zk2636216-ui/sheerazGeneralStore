@@ -1,0 +1,7 @@
+{
+  "name": "Sheeraz General Store",
+  "description": "Your friendly neighborhood grocery and general store in Khattak, owned by Fahad Islam and Sadam Hussain. Fresh groceries, drinks, snacks, spices, electrical items, and everyday essentials.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
