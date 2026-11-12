@@ -35,6 +35,15 @@ jobs:
       - name: Build static site
         run: npm run build
 
+      # Deploy to gh-pages branch so it works if "Deploy from a branch" is selected
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+        continue-on-error: true
+
+      # Also support GitHub Actions deployment if "GitHub Actions" is selected
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
@@ -45,7 +54,9 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: './dist'
+        continue-on-error: true
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true
